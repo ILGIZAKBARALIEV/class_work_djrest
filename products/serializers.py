@@ -13,13 +13,19 @@ class TagSerializer(serializers.ModelSerializer):
         fields = 'id name created updated'.split()
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many = False)
+    tags = TagSerializer(many=True)
+    category_name = serializers.SerializerMethodField()
     class Meta:
         model = Product
         # fields =  ['id', 'title', 'price', 'created_at']
         # fields = '__all__'
-        fields = 'id title price category tags'.split()
-        # depth = 1
+        fields = 'id title price category  category_name tags tag_names reviews '.split()
+        depth = 1
         # exclude = 'created_at'.split()
+
+    def get_category_name(self, product):
+        return product.category.name if product.category else None
 
 
 

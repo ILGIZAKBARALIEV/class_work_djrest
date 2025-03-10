@@ -7,7 +7,10 @@ from rest_framework import status
 @api_view(http_method_names=['GET'])
 def product_list_api_view(request):
     # step 1:Collect products from DB (QuerySet)
-    products = Product.objects.filter(is_active=True)
+    products = Product.objects.select_related('category').prefetch_related(
+        'tags',
+        'reviews'
+    ).filter(is_active=True)
     # print(products)
     # step 2: Reformat QuerySet to List of dictionaries (Serializer)
     serializer = ProductSerializer(instance= products, many=True)

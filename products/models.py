@@ -34,6 +34,22 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def tag_names(self):
+        return [i.name for i in self.tags.all()]
 
 
 
+STARS = (
+    (star,'*'* star) for star in range(1,6)
+)
+
+
+class Review(models.Model):
+    text = models.TextField()
+    stars = models.IntegerField(choices=STARS, default=5)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='reviews')
+
+    def __str__(self):
+        return self.text
