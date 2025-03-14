@@ -21,7 +21,7 @@ class Tag(AbstractNameModel):
 
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE,
-                                 null= True,blank=True)
+                                 null= True,blank=True) #category. id
     tags = models.ManyToManyField(Tag,blank=True)
     title = models.CharField (max_length= 255 )
     text = models. TextField(null= True,  blank = True)
@@ -49,7 +49,7 @@ class Review(models.Model):
     text = models.TextField()
     stars = models.IntegerField(choices=STARS, default=5)
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='reviews')
+                                related_name='reviews') # product id
 
     def __str__(self):
         return self.text
