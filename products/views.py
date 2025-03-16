@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from  rest_framework.response import Response
 from products.models import Product
-from .serializers import ProductSerializer,ProductDetailSerializer
+from .serializers import ProductSerializer,ProductDetailSerializer,ProductsValidateSerializer
 from rest_framework import status
 from django.db import transaction
 
@@ -20,25 +20,36 @@ def product_list_create_api_view(request):
         # step 3: Return Response(data, status(
         return Response(data= serializer.data)
     elif request.method == 'POST':
+        # step 0: Validation (Existing, Typing, Extra)
+        serializer = ProductsValidateSerializer(data=request.data)
+        if not serializer.is_valid(): #bool
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
+
         # step 1: Receive data from RequestBody
+        title = serializer.validated_data.get('title')
+        text = serializer.validated_data.get('text')
+        price = serializer.validated_data.get('price')
+        is_active = serializer.validated_data.get('is_active')
+        category_id = serializer.validated_data.get('category')
+        tags = serializer.validated_data.get('tags')
+        print(title,text,price,is_active,category_id,tags)
+        # step 2: Create product by data
         with transaction.atomic():
-            title = request.data.get('title')
-            text = request.data.get('text')
-            price = request.data.get('price')
-            is_active = request.data.get('is_active')
-            category_id = request.data.get('category')
-            tags = request.data.get('tags')
-            print(title ,text ,price ,is_active)
-            # step 2: Create product by data
             product = Product.objects.create(
-                title=title, text=text, price=price, is_active=is_active, category_id=category_id
+                title=title,
+                text=text,
+                price=price,
+                is_active=is_active,
+                category_id=category_id
             )
             product.tags.set(tags)
             product.save()
-            return Response(data=ProductDetailSerializer(product).data,
-                            status=status.HTTP_201_CREATED)
-        # Product.objects.bulk_create([product, product, product])
+
+        # Product.objects.bulk_create([product, product, product] )
         # step 3: Return response (data=product, status=201)
+        return Response(data=ProductDetailSerializer(product).data,
+                        status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET','PUT','DELETE'])

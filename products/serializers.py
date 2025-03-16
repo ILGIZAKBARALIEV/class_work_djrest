@@ -33,8 +33,14 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many= False)
     tags = TagSerializer(many=True)
-
-
     class Meta:
         model = Product
         fields = '__all__'
+
+class ProductsValidateSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True)
+    text = serializers.CharField(required=False)
+    price = serializers.FloatField()
+    is_active = serializers.BooleanField()
+    category_id = serializers.IntegerField()
+    tags = serializers.ListField
