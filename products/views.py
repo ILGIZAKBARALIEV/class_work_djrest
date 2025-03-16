@@ -33,7 +33,6 @@ def product_list_create_api_view(request):
         is_active = serializer.validated_data.get('is_active')
         category_id = serializer.validated_data.get('category')
         tags = serializer.validated_data.get('tags')
-        print(title,text,price,is_active,category_id,tags)
         # step 2: Create product by data
         with transaction.atomic():
             product = Product.objects.create(
