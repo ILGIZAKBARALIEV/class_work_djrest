@@ -3,16 +3,18 @@ from rest_framework.decorators import  api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
-from .serializers import UserRegistrationSerializer
+from .serializers import (UserBaseSerializer,
+                          UserAuthSerializer,
+                          UserRegisterSerializer)
 from rest_framework.authtoken.models import Token
 
 
 @api_view(['POST'])
 def authorization_api_view(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
+    serializer = UserAuthSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-    user = authenticate(username=username, password=password)
+    user= authenticate(**serializer.validated_data) #username = admin1,  password= 123
 
     if user is not None:
         try:
@@ -26,12 +28,15 @@ def authorization_api_view(request):
 
 @api_view(['POST'])
 def registration_api_view(request):
-    serializer = UserRegistrationSerializer(data=request.data)
+    serializer = UserBaseSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     username = serializer.validated_data.get('username')
     password = serializer.validated_data.get('password')
 
-    user = User.objects.create_user(username= username , password=password)
-    return Response(data = {'user_id':user.id},
+    user = User.objects.create_user(username= username , password=password,
+                                    is_active=False)
+    #create code (6-symbol)
+    token = Token.objects.create(user=user)
+    return Response(data = {'user_id':user.id, 'token':token.key},
                     status = status.HTTP_201_CREATED)
