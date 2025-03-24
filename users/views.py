@@ -3,10 +3,13 @@ from rest_framework.decorators import  api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+
 from .serializers import (UserBaseSerializer,
                           UserAuthSerializer,
                           UserRegisterSerializer)
 from rest_framework.authtoken.models import Token
+
 
 
 @api_view(['POST'])
@@ -40,3 +43,20 @@ def registration_api_view(request):
     token = Token.objects.create(user=user)
     return Response(data = {'user_id':user.id, 'token':token.key},
                     status = status.HTTP_201_CREATED)
+
+
+class AuthAPIView(APIView):
+    def post(self, request):
+        serializer = UserAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = authenticate(**serializer.validated_data)  # username = admin1,  password= 123
+
+        if user is not None:
+            try:
+                token = Token.objects.get(user=user)
+            except:
+                token = Token.objects.create(user=user)
+            return Response({'key': token.key})
+        return Response(status=status.HTTP_401_UNAUTHORIZED,
+                        data={'User credentials are wrong '})
