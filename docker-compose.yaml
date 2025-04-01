@@ -11,9 +11,9 @@ services:
   db:
     image: 'postgres:14'
     environment:
-      POSTGRES_DB: 'class_work_djrest_db'
-      POSTGRES_USER: 'class_work_djrest_user'
-      POSTGRES_PASSWORD: '12345'
+      POSTGRES_DB: '${NAME_DB}'
+      POSTGRES_USER: '${USER_DB}'
+      POSTGRES_PASSWORD: '${PASSWORD_DB}'
     volumes:
       - 'new-data:/var/lib/postgresql/data'
 volumes:
